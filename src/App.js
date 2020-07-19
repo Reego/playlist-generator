@@ -10,7 +10,7 @@ import {
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 
-import reducer from "./common/reducers";
+import reducer from "./reducers";
 
 const store = createStore(reducer);
 
