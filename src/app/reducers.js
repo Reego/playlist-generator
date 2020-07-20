@@ -14,27 +14,27 @@ import {
     OBTAIN_AUTH,
 } from "./actionTypes";
 
-const handleButtonsBlock = (state = {}, action) => {
-    let modifiedInactiveButtonsCounter = ((action.type === BUTTONS_BLOCK)
-        ? state.inactiveButtonsCounter + 1
-        : state.inactiveButtonsCounter - 1);
-    return Object.assign({}, state, {
-        inactiveButtonsCounter: state.inactiveButtonsCounter + 1,
-    });
+const incrementCounter = (counter = 0) => {
+    return
+};
+
+const decrementCounter = (counter = 0) => {
+    return counter--;
 };
 
 const handlePopup = (state = {}, action) => {
-    if(action.content === "") {
-        return Object.assign({}, state, {
-            inactiveButtonsCounter: state.inactiveButtonsCounter - 1,
-            popup: "",
+    if(action.content === ) {
+        const newState = Object.assign({}, state, {
+            popup: "";
         });
+        newState.buttonsBlockCounter = decrementCounter(newState.buttonsBlockCounter);
+        return newState;
     }
     const newState = Object.assign({}, state, {
         popup: action.content.
     });
     if(state.popup === null) {
-        newState.inactiveButtonsCounter++;
+        newState.buttonsBlockCounter = incrementCounter(newState.buttonsBlockCounter);
     }
     return newState;
 };
@@ -84,8 +84,13 @@ const handleAPI = (state = {}, action) => {
 const handleUserApp = (state = {}, action) => {
     switch(action.type) {
         case BUTTONS_BLOCK:
+            return Object.assign({}, state, {
+                buttonsBlockCounter: incrementCounter(state.buttonsBlockCounter),
+            });
         case BUTTONS_UNBLOCK:
-            return handleButtonsBlock(state, action);
+            return Object.assign({}, state, {
+                buttonsBlockCounter: decrementCounter(state.buttonsBlockCounter),
+            });
         case SET_POPUP:
             return handlePopup(state, action);
         case LOAD_SONGS:
