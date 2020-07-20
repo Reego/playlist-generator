@@ -196,10 +196,127 @@ describe("song state reducers", () => {
 });
 
 describe("playlist schema reducers", () => {
-    
+
+    test("modifying playlist schema overrides schema object at provided index", () => {
+        const initStates = [
+            ["hi", "how", "are", "you?"],
+            [1, 2, 3, 3, 4, 5],
+            [8, 7, 55, 2],
+            ["no", "way"],
+            [8],
+        ];
+
+        const actionSchemas = [
+            "Bad.", 2,
+            7, 3,
+            "whao", 0,
+            "no", 1,
+            9, 0,
+        ];
+
+        const expectedOutcomes = [
+            ["hi", "how", "Bad,", "you?"],
+            [1, 2, 3, 7, 4, 5],
+            ["whao", 7, 55, 2],
+            ["no", "no", "no"],
+            [9],
+        ];
+
+        for(let i = 0; i < initStates.length; i++) {
+            let k = i * 2;
+            const initState = { playlistSchemas: initStates[i] };
+            const newState = reducers(
+                initState,
+                { 
+                    type: ADD_PLAYLIST_SCHEMA,
+                    modifiedPlaylistSchema: actionSchemas[k],
+                    index: actionSchemas[k + 1],
+                }
+            );
+            for(let g = 0; g < newState.playlistSchemas.length; g++) {
+                expect(newState.playlistSchemas[g]).toEqual(expectedOutcomes[i][g]);
+            }
+            expect(newState.playlistSchemas.length).toEqual(expectedOutcomes[i].length);
+        }
+    });
+
+    test("playlist schema gets added to the end of state.playlistSchemas", () => {
+        const initStates = [
+            ["hi", "how", "are", "you?"],
+            [1, 2, 3, 3, 4, 5],
+            [8, 7, 55, 2],
+            ["no", "way"],
+            [8],
+        ];
+
+        const actionSchemas = [
+            "Bad.",
+            7,
+            "whao",
+            "no",
+            9,
+        ];
+
+        const expectedOutcomes = [
+            ["hi", "how", "are", "you?", "Bad."],
+            [1, 2, 3, 3, 4, 5, 7],
+            [8, 7, 55, 2, "whao"],
+            ["no", "way", "no"],
+            [8, 9],
+        ];
+
+        for(let i = 0; i < initStates.length; i++) {
+            const initState = { playlistSchemas: initStates[i] };
+            const newState = reducers(
+                initState, { type: ADD_PLAYLIST_SCHEMA, newPlaylistSchema: actionSchemas[i] }
+            );
+            for(let g = 0; g < newState.playlistSchemas.length; g++) {
+                expect(newState.playlistSchemas[g]).toEqual(expectedOutcomes[i][g]);
+            }
+            expect(newState.playlistSchemas.length).toEqual(expectedOutcomes[i].length);
+        }
+    });
+
+    test("playlist schema gets removed at the provided index from state.playlistSchemas", () => {
+        const initStates = [
+            ["hi", "how", "are", "you?"],
+            [1, 2, 3, 3, 4, 5],
+            [8, 7, 55, 2],
+            ["no", "way"],
+            [8],
+        ];
+
+        const actionIndeces = [
+            0,
+            2,
+            3,
+            1,
+            0,
+        ];
+
+        const expectedOutcomes = [
+            ["how", "are", "you?"],
+            [1, 2, 3, 4, 5],
+            [8, 7, 55],
+            ["no", "way"],
+            [],
+        ];
+
+        for(let i = 0; i < initStates.length; i++) {
+            const initState = { playlistSchemas: initStates[i] };
+            const newState = reducers(
+                initState, { type: REMOVE_PLAYLIST_SCHEMA, index: actionIndeces[i] }
+            );
+            for(let g = 0; g < newState.playlistSchemas.length; g++) {
+                expect(newState.playlistSchemas[g]).toEqual(expectedOutcomes[i][g]);
+            }
+            expect(newState.playlistSchemas.length).toEqual(expectedOutcomes[i].length);
+        }
+    });
 });
 
 describe("auth reducers", () => {
+
     test("state.auth properly set", () => {
         const makeAction = (auth) => {
             auth,
