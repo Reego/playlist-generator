@@ -176,12 +176,39 @@ describe("popup reducers", () => {
 
 describe("song state reducers", () => {
 
+    test("songsLoaded becomes true when using LOAD_SONGS type", () => {
+        const action = {
+            type: LOAD_SONGS,
+        };
+        expect(reducer({}, action).songsLoaded).toBe(true);
+        expect(reducer({ songsLoaded: false }, action).songsLoaded).toBe(true);
+        expect(reducer({ songsLoaded: true }, action).songsLoaded).toBe(true);
+    });
+
+    test("songsLoaded becomes false when using RESET_LOADED_SONGS type", () => {
+        const action = {
+            type: RESET_LOADED_SONGS,
+        };
+        expect(reducer({}, action).songsLoaded).toBe(false);
+        expect(reducer({ songsLoaded: false }, action).songsLoaded).toBe(false);
+        expect(reducer({ songsLoaded: true }, action).songsLoaded).toBe(false);
+    });
 });
 
 describe("playlist schema reducers", () => {
-
+    
 });
 
 describe("auth reducers", () => {
-
+    test("state.auth properly set", () => {
+        const makeAction = (auth) => {
+            auth,
+        };
+        expect(reducer({}, makeAction(null)).auth).toEqual(null);
+        expect(reducer({ auth: "hello" }, makeAction(false)).auth).toEqual(false);
+        const testAuth = {
+            b: "whoa",
+        };
+        expect(reducer({ auth: { a: "wow" } }, makeAction(testAuth)).auth).toBe(testAuth);
+    });
 });
