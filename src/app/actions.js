@@ -18,12 +18,13 @@ import {
 /// UI level
 
 const setPopup = (content = "") => ({
-    type: OPEN_POPUP,
+    type: SET_POPUP,
     content,
 });
 
-const progressPlaylistGeneration = () => ({
+const progressPlaylistGeneration = (progress) => ({
     type: PROGRESS_PLAYLIST_GENERATION,
+    progress,
 });
 
 const incrementButtonsBlockCounter = () => ({
@@ -47,7 +48,7 @@ const resetLoadedSongs = () => ({
 
 /// Playlist Schema level
 
-const modifyPlaylistSchema = (modifiedPlaylistSchema, indez) => ({
+const modifyPlaylistSchema = (modifiedPlaylistSchema, index) => ({
     type: MODIFY_PLAYLIST_SCHEMA,
     modifiedPlaylistSchema,
     index,
@@ -70,3 +71,16 @@ const obtainAuth = (auth) => ({
     type: OBTAIN_AUTH,
     auth,
 });
+
+export {
+    setPopup,
+    progressPlaylistGeneration,
+    incrementButtonsBlockCounter,
+    decrementButtonsBlockCounter,
+    loadSongs,
+    resetLoadedSongs,
+    modifyPlaylistSchema,
+    addPlaylistSchema,
+    removePlaylistSchema,
+    obtainAuth,
+};
