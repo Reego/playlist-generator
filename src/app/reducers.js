@@ -14,27 +14,27 @@ import {
     OBTAIN_AUTH,
 } from "./actionTypes";
 
-const incrementCounter = (counter = 0) => {
-    return
-};
+/// Helper function that sets default value of counter to 0 if undefined
 
-const decrementCounter = (counter = 0) => {
-    return counter--;
-};
+const incrementCounter = (counter = 0) => counter + 1;
+
+const decrementCounter = (counter = 0) => counter - 1;
 
 const handlePopup = (state = {}, action) => {
-    if(action.content === ) {
+    if(action.content) {
         const newState = Object.assign({}, state, {
-            popup: "";
+            popup: action.content,
         });
-        newState.buttonsBlockCounter = decrementCounter(newState.buttonsBlockCounter);
+        if(!state.popup) {
+            newState.buttonsBlockCounter = incrementCounter(newState.buttonsBlockCounter);
+        }
         return newState;
     }
     const newState = Object.assign({}, state, {
-        popup: action.content.
+        popup: "",
     });
-    if(state.popup === null) {
-        newState.buttonsBlockCounter = incrementCounter(newState.buttonsBlockCounter);
+    if(state.popup) {
+        newState.buttonsBlockCounter = decrementCounter(newState.buttonsBlockCounter);
     }
     return newState;
 };
@@ -47,18 +47,24 @@ const handleSongState = (state = {}, action) => {
 
 const handlePlaylistSchemas = (state = {}, action) => {
     if(action.type === MODIFY_PLAYLIST_SCHEMA) {
-        const newState = Object.assign({}, state);
-        newState.playlistSchemas[action.playlistSchema.index] = action.modifiedPlaylistSchema;
-        return newState;
+        const newPlaylistSchemas = [...state.playlistSchemas];
+        newPlaylistSchemas[action.index] = action.modifiedPlaylistSchema;
+        return Object.assign({}, state, {
+            playlistSchemas: newPlaylistSchemas,
+        });
     }
     else if(action.type === ADD_PLAYLIST_SCHEMA) {
-        const newState = Object.assign({}, state);
-        newState.playlistSchemas.push(state.newPlaylistSchema);
-        return newState;
-    }
-    else { /// REMOVE_PLAYLIST_SCHEMA
+        const newPlaylistSchemas = [...state.playlistSchemas];
+        newPlaylistSchemas.push(action.newPlaylistSchema);
         return Object.assign({}, state, {
-            playlistSchemas: state.playlistSchemas.splice(0, action.index);
+            playlistSchemas: newPlaylistSchemas,
+        });
+    }
+    else if(action.index !== undefined && action.index < state.playlistSchemas.length) { /// REMOVE_PLAYLIST_SCHEMA
+        const newPlaylistSchemas = [...state.playlistSchemas];
+        newPlaylistSchemas.splice(action.index, 1);
+        return Object.assign({}, state, {
+            playlistSchemas: newPlaylistSchemas,
         });
     }
 };
@@ -68,7 +74,7 @@ const handlePlaylistGeneration = (state = {}, action) => {
     if(previousProgress !== action.progress) {
         return Object.assign({}, state, {
             playlistGenerationProgress: ((action.progress >= 100)
-                ? -1 : action.progress,
+                ? -1 : action.progress
             )
         });
     }

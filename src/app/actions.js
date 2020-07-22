@@ -47,9 +47,10 @@ const resetLoadedSongs = () => ({
 
 /// Playlist Schema level
 
-const modifyPlaylistSchema = (modifiedPlaylistSchema) => ({
+const modifyPlaylistSchema = (modifiedPlaylistSchema, indez) => ({
     type: MODIFY_PLAYLIST_SCHEMA,
     modifiedPlaylistSchema,
+    index,
 });
 
 const addPlaylistSchema = (newPlaylistSchema) => ({
