@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 
 import {
     BrowserRouter as Router,
@@ -10,18 +9,25 @@ import {
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 
-import reducer from "./reducers";
+import reducer from "./app/reducers";
+
+import Layout from "./common/layout";
+import Home from "./home/index";
+import ShufflerApp from "./app/index";
 
 const store = createStore(reducer);
 
-const App = () => {
+const App = () => (
     <Provider store={ store }>
-        <Switch>
-            <Route path="/user"><App/></Route>
-            <Route path="/about"><About/></Route>
-            <Route><Home/></Route>
-        </Switch>
+        <Router>
+            <Layout>
+                <Switch>
+                    <Route path="/user"><ShufflerApp/></Route>
+                    <Route><Home/></Route>
+                </Switch>
+            </Layout>
+        </Router>
     </Provider>
-}
+);
 
 export default App;
