@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-
 import { useSelector, useDispatch } from "react-redux";
+import InputNumber from "rc-input-number";
 
 import {
     setPopup,
@@ -17,10 +17,23 @@ import {
 
 import style from "./style.module.css";
 
+const minTempo = 0;
+const maxTempo = 300;
+const minYear = 0;
+const maxYear = new Date().getFullYear();
+
 function newEmptyPlaylist() {
     return {
         name: "New Playlist",
-        tempo: ".5",
+        genres: [],
+        year: [0, maxYear],
+        acousticness: [0, 1],
+        danceability: [0, 1],
+        energy: [0, 1],
+        instrumentalness: [0, 1],
+        valence: [0, 1],
+        tempo: [0, 300],
+        dateKey: new Date().getTime(),
     };
 }
 
@@ -30,11 +43,15 @@ const Genres = () => {
     );
 };
 
-const Constraint = ({ label, min, max, step, initialValue, onChange }) => {
+const Constraint = ({ label, bounds, min="0", max="1", step=".01", onChange }) => {
+    const lowerCaseLabel = label.toLowerCase();
     return (
-        <p>
-            <label>{ label }</label><input type="number" min={ min } max={ max } step={ step } onChange={ onChange }/>
-        </p>
+        <div className={ style.constraintSlot }>
+            <label className={ style.constraintLabel }>{ label }</label>
+            <br className={ style.constraintLabelBreak }/>
+            <label className={ style.boundsLabel }>Min</label><InputNumber value={ bounds[0] } min={ min } max={ bounds[1] } step={ step } onChange={ (value) => onChange(value, 0, lowerCaseLabel) }/>
+            <label className={ style.boundsLabel }>Max</label><InputNumber value={ bounds[1] } min={ bounds[0] } max={ max } step={ step } onChange={ (value) => onChange(value, 1, lowerCaseLabel) }/>
+        </div>
     );
 };
 
@@ -44,6 +61,10 @@ const Playlist = ({ playlistIndex, playlistSchema, onDelete }) => {
     const playlistName = playlistSchema.name;
 
     const dispatch = useDispatch();
+
+    const onToggle = () => {
+        setFolded(!folded);
+    };
 
     const onChangeSchema = (modifiedPlaylistSchema) => {
         dispatch(modifyPlaylistSchema(modifiedPlaylistSchema, playlistIndex));
@@ -59,19 +80,53 @@ const Playlist = ({ playlistIndex, playlistSchema, onDelete }) => {
         }));
     };
 
-    const onChangeConstraint = (e, constraintKey) => {
+    const onChangeConstraint = (value, minOrMax, constraintKey) => {
+        const modifiedBounds = [...playlistSchema[constraintKey]];
+        modifiedBounds[minOrMax] = value;
         onChangeSchema(Object.assign({}, playlistSchema, {
-            [constraintKey]: e.target.value,
+            [constraintKey]: modifiedBounds,
         }));
+    };
+
+    const stdSongFeatureRange = {
+        min: 0,
+        max: 1,
+        step: .01,
     };
 
     return (
         <div className={ style.playlistSlot }>
-            <h4>{ playlistName }</h4>
-            <input name="playlistName" type="text" initialValue={ playlistName } placeholder={ "Playlist name" } onChange={ onChangePlaylistName }/>
-            <Genres/>
-            <Constraint label={ "tempo" } min={ 0 } max={ 1 } step={ .01 } onChange={ (e) => onChangeSchema(e, "tempo") }/>
-            <div className={ style.button } onClick={ onDeletePlaylistSchema }>Delete</div>
+            <h4 onClick={ onToggle }>{ playlistName }</h4>
+            { !folded && (
+                <React.Fragment>
+                <input className={ style.playlistName }name="playlistName" type="text" value={ playlistName } placeholder={ "Playlist name" } onChange={ onChangePlaylistName }/>
+                <Genres/>
+                <Constraint label={ "Year" }
+                    bounds={ playlistSchema.year }
+                    min={ minYear } max={ maxYear } step={ 1 }
+                    onChange={ onChangeConstraint }/>
+                <Constraint label={ "Acousticness" }
+                    bounds={ playlistSchema.acousticness }
+                    onChange={ onChangeConstraint }/>
+                <Constraint label={ "Danceability" }
+                    bounds={ playlistSchema.danceability }
+                    onChange={ onChangeConstraint }/>
+                <Constraint label={ "Energy" }
+                    bounds={ playlistSchema.energy }
+                    onChange={ onChangeConstraint }/>
+                <Constraint label={ "Instrumentalness" }
+                    bounds={ playlistSchema.instrumentalness }
+                    onChange={ onChangeConstraint }/>
+                <Constraint label={ "Valence" }
+                    bounds={ playlistSchema.valence } 
+                    onChange={ onChangeConstraint }/>
+                <Constraint label={ "Tempo" }
+                    bounds={ playlistSchema.tempo }
+                    min={ minTempo } max={ maxTempo } step={ 1 }
+                    onChange={ onChangeConstraint }/>
+                <div className={ style.button } onClick={ onDeletePlaylistSchema }>Delete</div>
+                </React.Fragment>
+            ) }
         </div>
     );
 };
@@ -89,16 +144,16 @@ const Playlists = () => {
     for(let i = 0; i < playlistSchemas.length; i++) {
         let g = i;
         playlistComponents.push(
-            <Playlist key={ i } playlistIndex={ i } playlistSchema={ playlistSchemas[i] }/>
+            <Playlist key={ playlistSchemas[i].dateKey } playlistIndex={ i } playlistSchema={ playlistSchemas[i] }/>
         );
     }
 
     return (
         <React.Fragment>
-            <div>
+            <div className={ style.playlistsWrap }>
                 { playlistComponents }
             </div>
-            <div className={ style.button } onClick={ onAddPlaylist }>New Playlist</div>
+            <div className={ style.button + " " + style.newPlaylistButton } onClick={ onAddPlaylist }>Create Playlist</div>
         </React.Fragment>
     );
 };
@@ -112,13 +167,15 @@ const Generation = () => {
 const App = () => {
     return (
         <React.Fragment>
+        <div className={ style.appWrap }>
+            <h3 className={ style.userInfo + " " + style.infoTitle}>User: Reego</h3>
+            <h3 className={ style.tracksLoaded + " " + style.infoTitle}>Tracks Loaded</h3>
             <br/>
             <br/>
-            <h3>User: Reego</h3>
-            <h3>Tracks Loaded</h3>
             <Playlists/>
             <Generation/>
-            <h3>NOTE: Songs are only added in chunks, so be patient and let the process finish.</h3>
+            <h3 className={ style.chunkWarning + " " + style.infoTitle}>NOTE: Songs are only added in chunks, so be patient and let the process finish.</h3>
+        </div>
         </React.Fragment>
     );
 };

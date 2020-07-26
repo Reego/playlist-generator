@@ -1,0 +1,70 @@
+.appWrap {
+    width: 90vw;
+    padding: 5vw 2vw;
+    max-width: 1000px;
+    background-color: rgba(0, 0, 0, .1);
+    margin: 5vw auto;
+}
+
+.appWrap > h3 {
+    text-align: center;
+}
+
+.playlistsWrap {
+    width: 100%;
+    border-top: 3px solid rgba(0, 0, 0, .5);
+    border-bottom: 3px solid rgba( 0, 0, 0, .5);
+}
+
+.newPlaylistButton {
+    display: block;
+    margin: 30px auto;
+    background-color: rgba(90, 230, 120, 1);
+    color: #222;
+    width: 200px;
+    padding: 20px 10px;
+    text-align: center;
+    transition: .1s background-color, .1s color;
+    cursor: pointer;
+}
+
+.newPlaylistButton:hover {
+    background-color: rgba(60, 220, 100, 1);
+    color: #111;
+}
+
+/* PLAYLIST SLOT LEVEL */
+
+.playlistSlot {
+
+}
+
+.playlistSlot > h4 {
+    padding: 5px 20px;
+    font-size: 24px;
+    font-weight: 900;
+    border-bottom: 3px solid rgba(0, 0, 0, .8);
+    cursor: pointer;
+    transition: .1s background-color;
+}
+
+.playlistSlot > h4:hover {
+    background-color: rgba(0, 0, 0, .2);
+}
+
+.playlistSlot > input:attribute[type="text"] {
+    background-color: blue;
+}
+
+.playlistSlot input, .playlistSlot label {
+    display: inline-block;
+    background-color: blue;
+}
+
+/* END PLAYLIST SLOT LEVEL */
+
+@media only screen and (min-width: 700px) {
+    .appWrap {
+        padding: 30px 20px;
+    }
+}
