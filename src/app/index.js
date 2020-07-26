@@ -47,24 +47,21 @@ const Constraint = ({ label, bounds, min="0", max="1", step=".01", onChange }) =
     const lowerCaseLabel = label.toLowerCase();
     return (
         <div className={ style.constraintSlot }>
-            <label className={ style.constraintLabel }>{ label }</label>
+            <h4 className={ style.constraintLabel }>{ label }</h4>
             <br className={ style.constraintLabelBreak }/>
             <label className={ style.boundsLabel }>Min</label><InputNumber value={ bounds[0] } min={ min } max={ bounds[1] } step={ step } onChange={ (value) => onChange(value, 0, lowerCaseLabel) }/>
-            <label className={ style.boundsLabel }>Max</label><InputNumber value={ bounds[1] } min={ bounds[0] } max={ max } step={ step } onChange={ (value) => onChange(value, 1, lowerCaseLabel) }/>
+            <label className={ style.boundsLabel + " " + style.maxBoundsLabel}>Max</label><InputNumber value={ bounds[1] } min={ bounds[0] } max={ max } step={ step } onChange={ (value) => onChange(value, 1, lowerCaseLabel) }/>
         </div>
     );
 };
 
-const Playlist = ({ playlistIndex, playlistSchema, onDelete }) => {
+const Playlist = ({ playlistIndex, playlistSchema, folded, setFoldedKey, onDelete }) => {
 
-    const [ folded, setFolded ] = useState(true);
     const playlistName = playlistSchema.name;
 
     const dispatch = useDispatch();
 
-    const onToggle = () => {
-        setFolded(!folded);
-    };
+    const onToggle = () => setFoldedKey((!folded) ? null : playlistSchema.dateKey);
 
     const onChangeSchema = (modifiedPlaylistSchema) => {
         dispatch(modifyPlaylistSchema(modifiedPlaylistSchema, playlistIndex));
@@ -96,10 +93,10 @@ const Playlist = ({ playlistIndex, playlistSchema, onDelete }) => {
 
     return (
         <div className={ style.playlistSlot }>
-            <h4 onClick={ onToggle }>{ playlistName }</h4>
+            <h4 onClick={ onToggle }>{ playlistName || "New Playlist" }</h4>
             { !folded && (
                 <React.Fragment>
-                <input className={ style.playlistName }name="playlistName" type="text" value={ playlistName } placeholder={ "Playlist name" } onChange={ onChangePlaylistName }/>
+                <input className={ style.playlistName } name="playlistName" type="text" value={ playlistName } placeholder={ "New Playlist" } onChange={ onChangePlaylistName }/>
                 <Genres/>
                 <Constraint label={ "Year" }
                     bounds={ playlistSchema.year }
@@ -136,6 +133,8 @@ const Playlists = () => {
     const playlistSchemas = useSelector((state) => state.playlistSchemas) || [];
     const dispatch = useDispatch();
 
+    const [ foldedKey, setFoldedKey ] = useState(null);
+
     const onAddPlaylist = () => {
         dispatch(addPlaylistSchema(newEmptyPlaylist()));
     };
@@ -144,7 +143,7 @@ const Playlists = () => {
     for(let i = 0; i < playlistSchemas.length; i++) {
         let g = i;
         playlistComponents.push(
-            <Playlist key={ playlistSchemas[i].dateKey } playlistIndex={ i } playlistSchema={ playlistSchemas[i] }/>
+            <Playlist key={ playlistSchemas[i].dateKey } playlistIndex={ i } playlistSchema={ playlistSchemas[i] } folded={ foldedKey !== playlistSchemas[g].dateKey } setFoldedKey={ setFoldedKey }/>
         );
     }
 
