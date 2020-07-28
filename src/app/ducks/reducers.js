@@ -40,33 +40,27 @@ const handlePopup = (state = {}, action) => {
 };
 
 const handleSongState = (state = {}, action) => {
+    let songs = (action.type === LOAD_SONGS) ? action.songs : [];
     return Object.assign({}, state, {
-        songsLoaded: action.type === LOAD_SONGS,
+        songs,
     });
 };
 
-const handlePlaylistSchemas = (state = {}, action) => {
+const handlePlaylistSchemas = (playlistSchemas = [], action) => {
+    let newPlaylistSchemas;
     if(action.type === MODIFY_PLAYLIST_SCHEMA) {
-        const newPlaylistSchemas = [...state.playlistSchemas];
+        newPlaylistSchemas = [...playlistSchemas];
         newPlaylistSchemas[action.index] = action.modifiedPlaylistSchema;
-        return Object.assign({}, state, {
-            playlistSchemas: newPlaylistSchemas,
-        });
     }
     else if(action.type === ADD_PLAYLIST_SCHEMA) {
-        const newPlaylistSchemas = [...state.playlistSchemas];
+        newPlaylistSchemas = [...playlistSchemas];
         newPlaylistSchemas.push(action.newPlaylistSchema);
-        return Object.assign({}, state, {
-            playlistSchemas: newPlaylistSchemas,
-        });
     }
-    else if(action.index !== undefined && action.index < state.playlistSchemas.length) { /// REMOVE_PLAYLIST_SCHEMA
-        const newPlaylistSchemas = [...state.playlistSchemas];
+    else if(action.index !== undefined && action.index < playlistSchemas.length) { /// REMOVE_PLAYLIST_SCHEMA
+        newPlaylistSchemas = [...playlistSchemas];
         newPlaylistSchemas.splice(action.index, 1);
-        return Object.assign({}, state, {
-            playlistSchemas: newPlaylistSchemas,
-        });
     }
+    return newPlaylistSchemas;
 };
 
 const handlePlaylistGeneration = (state = {}, action) => {
@@ -105,7 +99,9 @@ const handleUserApp = (state = {}, action) => {
         case MODIFY_PLAYLIST_SCHEMA:
         case ADD_PLAYLIST_SCHEMA:
         case REMOVE_PLAYLIST_SCHEMA:
-            return handlePlaylistSchemas(state, action);
+            return Object.assign({}, state, {
+                playlistSchemas: handlePlaylistSchemas(state.playlistSchemas, action)
+            });
         case PROGRESS_PLAYLIST_GENERATION:
             return handlePlaylistGeneration(state, action);
         case OBTAIN_AUTH:
