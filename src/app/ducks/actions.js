@@ -37,8 +37,9 @@ const decrementButtonsBlockCounter = () => ({
 
 /// Song level
 
-const loadSongs = () => ({
-    type: LOAD_SONGS
+const loadSongs = (songs) => ({
+    type: LOAD_SONGS,
+    songs,
 });
 
 const resetLoadedSongs = () => ({

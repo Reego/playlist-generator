@@ -49,7 +49,11 @@ test("decrementButtonsBlockCounter returns object with type BUTTONS_UNBLOCK", ()
 });
 
 test("loadSongs returns object with type LOAD_SONGS", () => {
-    expect(loadSongs().type).toEqual(LOAD_SONGS);
+    for(let songs of ["wow", { whoa: 1 }, "NAH"]) {
+        const action = loadSongs(songs);
+        expect(action.type).toEqual(LOAD_SONGS);
+        expect(action.songs).toEqual(songs);
+    }
 });
 
 test("resetLoadedSongs returns object with type RESET_LOADED_SONGS", () => {

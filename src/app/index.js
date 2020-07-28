@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import InputNumber from "rc-input-number";
 
@@ -13,7 +13,7 @@ import {
     addPlaylistSchema,
     removePlaylistSchema,
     obtainAuth,
-} from "./actions";
+} from "./ducks/actions";
 
 import style from "./style.module.css";
 
@@ -21,6 +21,71 @@ const minTempo = 0;
 const maxTempo = 300;
 const minYear = 0;
 const maxYear = new Date().getFullYear();
+
+const Popup = () => {
+    const popupContent = useSelector((state) => state.popup);
+    const dispatch = useDispatch();
+
+    const onClosePopup = () => {
+        if(popupContent) {
+            dispatch(setPopup());
+        }
+    };
+
+    if(popupContent) {
+        return (
+        <div className={ style.popupOverlay }>
+            <div className={ style.popupBox }>
+                <h2>{ popupContent }</h2>
+                <div onClick={ onClosePopup }>OK</div>
+            </div>
+        </div>
+        );
+    }
+
+    return null;
+};
+
+const SongsInterface = () => {
+    const buttonsBlockCounter = useSelector((state) => state.buttonsBlockCounter) || 0;
+    const dispatch = useDispatch();
+
+    const onChangeFileField = (e) => {
+        const file = e.files[e.files.length() - 1];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // const loadedSongs = loadSongs(e.target.value);
+                // dispatch(loadSongs(loadedSongs));
+            };
+            reader.onerror = (err) => {
+                console.err(err);
+                dispatch(setPopup("Uh oh, something went wrong..."));
+            };
+            reader.readAsText(file);
+        }
+        else
+        {
+            console.log("Something went wrong...");
+        }
+    };
+
+    const onResetLoadedSongs = (e) => {
+        dispatch(setPopup("Songs have been reset."));
+        dispatch(resetLoadedSongs());
+    };
+
+    return (
+        <React.Fragment>
+            <label>Upload Songs</label><input type="file" onChange={ onChangeFileField }/>
+            <h3>Copy and paste the contents of a playlist or your Library into a text file. Then, upload that text file.</h3>
+            <br/>
+            { buttonsBlockCounter <= 0 &&
+                <div className={ style.button + " " + style.resetLoadedSongsButton } onClick={ onResetLoadedSongs }>Reset Loaded Songs</div>
+            }
+        </React.Fragment>
+    );
+};
 
 function newEmptyPlaylist() {
     return {
@@ -55,7 +120,7 @@ const Constraint = ({ label, bounds, min="0", max="1", step=".01", onChange }) =
     );
 };
 
-const Playlist = ({ playlistIndex, playlistSchema, folded, setFoldedKey, onDelete }) => {
+const Playlist = ({ playlistIndex, playlistSchema, folded, setFoldedKey, onDelete, buttonsBlockCounter }) => {
 
     const playlistName = playlistSchema.name;
 
@@ -121,7 +186,9 @@ const Playlist = ({ playlistIndex, playlistSchema, folded, setFoldedKey, onDelet
                     bounds={ playlistSchema.tempo }
                     min={ minTempo } max={ maxTempo } step={ 1 }
                     onChange={ onChangeConstraint }/>
-                <div className={ style.button } onClick={ onDeletePlaylistSchema }>Delete</div>
+                { buttonsBlockCounter <= 0 &&
+                    <div className={ style.button } onClick={ onDeletePlaylistSchema }>Delete</div>
+                }
                 </React.Fragment>
             ) }
         </div>
@@ -131,6 +198,7 @@ const Playlist = ({ playlistIndex, playlistSchema, folded, setFoldedKey, onDelet
 const Playlists = () => {
 
     const playlistSchemas = useSelector((state) => state.playlistSchemas) || [];
+    const buttonsBlockCounter = useSelector((state) => state.buttonsBlockCounter) || 0;
     const dispatch = useDispatch();
 
     const [ foldedKey, setFoldedKey ] = useState(null);
@@ -152,28 +220,62 @@ const Playlists = () => {
             <div className={ style.playlistsWrap }>
                 { playlistComponents }
             </div>
-            <div className={ style.button + " " + style.newPlaylistButton } onClick={ onAddPlaylist }>Create Playlist</div>
+            { buttonsBlockCounter <= 0 &&
+                <div className={ style.button + " " + style.newPlaylistButton } onClick={ onAddPlaylist }>Create Playlist</div>
+            }
         </React.Fragment>
     );
 };
 
+const generatePlaylists = async (dispatch) => {
+    setTimeout(() => { dispatch(progressPlaylistGeneration(100)); }, 500);
+};
+
 const Generation = () => {
-    return (
-        <h1></h1>
-    );
+    const playlistGenerationProgress = useSelector((state) => state.playlistGenerationProgress);
+    const buttonsBlockCounter = useSelector((state) => state.buttonsBlockCounter) || 0;
+    const dispatch = useDispatch();
+
+    const onStartGeneratePlaylists = () => {
+        dispatch(progressPlaylistGeneration(50));
+        generatePlaylists(dispatch);
+    };
+
+    if(buttonsBlockCounter <= 0 && (playlistGenerationProgress === undefined || playlistGenerationProgress < 0)) { /// Not generating
+        return (
+            <div className={ style.button + " " + style.generatePlaylistsButton } onClick={ onStartGeneratePlaylists }>Generate Playlists</div>
+        );
+    }
+    else {
+        return (
+            <React.Fragment>
+                <br/>
+                <h3>Generating...</h3>
+                <br/>
+                <div className={ style.generationProgressBar }>
+                    <div style={{ width: playlistGenerationProgress + "%" }}></div>
+                </div>
+                <br/>
+            </React.Fragment>
+        );
+    }
 };
 
 const App = () => {
     return (
         <React.Fragment>
+        <Popup/>
         <div className={ style.appWrap }>
             <h3 className={ style.userInfo + " " + style.infoTitle}>User: Reego</h3>
+            <br/>
             <h3 className={ style.tracksLoaded + " " + style.infoTitle}>Tracks Loaded</h3>
+            <br/>
+            <SongsInterface/>
             <br/>
             <br/>
             <Playlists/>
             <Generation/>
-            <h3 className={ style.chunkWarning + " " + style.infoTitle}>NOTE: Songs are only added in chunks, so be patient and let the process finish.</h3>
+            <h3 className={ style.chunkWarning + " " + style.infoTitle}><strong>NOTE:</strong> Songs are only added in chunks, so be patient and let the process finish before closing this page.</h3>
         </div>
         </React.Fragment>
     );

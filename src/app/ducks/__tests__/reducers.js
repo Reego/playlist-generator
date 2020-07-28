@@ -176,22 +176,41 @@ describe("popup reducers", () => {
 
 describe("song state reducers", () => {
 
-    test("songsLoaded becomes true when using LOAD_SONGS type", () => {
-        const action = {
+    test("songs gets set to first parameter provided to loadSongs action", () => {
+
+        const makeAction = (songsToLoad) => ({
             type: LOAD_SONGS,
-        };
-        expect(reducer({}, action).songsLoaded).toBe(true);
-        expect(reducer({ songsLoaded: false }, action).songsLoaded).toBe(true);
-        expect(reducer({ songsLoaded: true }, action).songsLoaded).toBe(true);
+            songs: songsToLoad,
+        });
+
+        const initStates = [
+            ["hi", "how", "are", "you?"],
+            [1, 2, 3, 3, 4, 5],
+            [8, 7, 55, 2],
+            ["no", "way"],
+            [8],
+        ];
+
+        const actionSongsParams = [
+            [1, 2, 3],
+            [],
+            ["WHOA", "HEY"]
+        ];
+
+        for(let i = 0; i < initStates.length; i++) {
+            const state = initStates[i];
+            const newState = reducer(initStates[i], makeAction(actionSongsParams[i]));
+            expect(newState.songs).toEqual(actionSongsParams[i]);
+        }
     });
 
-    test("songsLoaded becomes false when using RESET_LOADED_SONGS type", () => {
+    test("songs becomes an empty array", () => {
         const action = {
             type: RESET_LOADED_SONGS,
         };
-        expect(reducer({}, action).songsLoaded).toBe(false);
-        expect(reducer({ songsLoaded: false }, action).songsLoaded).toBe(false);
-        expect(reducer({ songsLoaded: true }, action).songsLoaded).toBe(false);
+        expect(reducer({}, action).songs.length).toEqual(0);
+        expect(reducer({ songs: [1, 2, 3] }, action).songs.length).toEqual(0);
+        expect(reducer({ songs: ["whoa", "HEY"] }, action).songs.length).toEqual(0);
     });
 });
 
