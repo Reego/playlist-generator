@@ -1,1 +1,1 @@
-## Playlist Generator for Spotify Users
+## Playlist Generator for Spotify
