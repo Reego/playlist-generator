@@ -2,6 +2,10 @@ import {
     getSongData,
 } from "./api";
 
+import {
+    addPlaylistSchema,
+} from "./ducks/actions";
+
 const playlistNameSuffix = " [SMS]";
 
 const playlistConstraint = [
@@ -58,11 +62,19 @@ async function generatePlaylists(playlistSchemas, songIds, progressionCallback) 
     }
 }
 
-function savePlaylistSchemasInLocalStorage(playlistSchemas) {
+function loadPlaylistSchemasFromLocalStorage(dispatch) {
+    const localPlaylistSchemas = localStorage.getItem("playlistSchemas");
+    for(const loadedPlaylistSchema of localPlaylistSchemas) {
+        dispatch(addPlaylistSchema(loadedPlaylistSchema));
+    }
+}
 
+function savePlaylistSchemasToLocalStorage(playlistSchemas) {
+    localStorage.setItem("playlistSchemas", playlistSchemas);
 }
 
 export {
     generatePlaylists,
+    loadPlaylistSchemasFromLocalStorage,
     savePlaylistSchemasInLocalStorage,
 };

@@ -18,8 +18,14 @@ import {
 
 import {
     generatePlaylists,
-    savePlaylistSchemasInLocalStorage,
+    loadPlaylistSchemasFromLocalStorage,
+    savePlaylistSchemasToLocalStorage,
 } from "./playlists";
+
+import {
+    loadSongsFromFile,
+    loadSongsFromLocalStorage,
+} from "./songs";
 
 import style from "./style.module.css";
 
@@ -61,8 +67,8 @@ const SongsInterface = () => {
         if(file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                // const loadedSongs = loadSongs(e.target.value);
-                // dispatch(loadSongs(loadedSongs));
+                const loadedSongs = loadSongsFromFile(e.target.value);
+                dispatch(loadSongs(loadedSongs));
             };
             reader.onerror = (err) => {
                 console.err(err);
@@ -274,13 +280,26 @@ const Generation = () => {
     }
 };
 
+function loadPlaylistSchemas(dispatch) {
+
+}
+
+function loadSongs() {
+
+}
+
 const App = () => {
     const playlistSchemas = useSelector((state) => state.playlistSchemas);
     const playlistSchemasDirty = useSelector((state) => state.playlistSchemasDirty);
     const dispatch = useDispatch(dispatch);
 
+    useEffect(() => {
+        loadPlaylistSchemasFromLocalStorage(dispatch);
+        loadSongsFromLocalStorage(dispatch);
+    }, []);
+
     if(playlistSchemasDirty) {
-        savePlaylistSchemasInLocalStorage(playlistSchemas);
+        savePlaylistSchemasToLocalStorage(playlistSchemas);
         dispatch(savePlaylistSchemas());
     }
 
