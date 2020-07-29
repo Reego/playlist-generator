@@ -12,8 +12,14 @@ import {
     modifyPlaylistSchema,
     addPlaylistSchema,
     removePlaylistSchema,
+    savePlaylistSchemas,
     obtainAuth,
 } from "./ducks/actions";
+
+import {
+    generatePlaylists,
+    savePlaylistSchemasInLocalStorage,
+} from "./playlists";
 
 import style from "./style.module.css";
 
@@ -269,11 +275,13 @@ const Generation = () => {
 };
 
 const App = () => {
-
+    const playlistSchemas = useSelector((state) => state.playlistSchemas);
     const playlistSchemasDirty = useSelector((state) => state.playlistSchemasDirty);
+    const dispatch = useDispatch(dispatch);
 
     if(playlistSchemasDirty) {
-        
+        savePlaylistSchemasInLocalStorage(playlistSchemas);
+        dispatch(savePlaylistSchemas());
     }
 
     return (
