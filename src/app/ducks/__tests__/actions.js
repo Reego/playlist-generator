@@ -10,6 +10,7 @@ import {
     MODIFY_PLAYLIST_SCHEMA,
     ADD_PLAYLIST_SCHEMA,
     REMOVE_PLAYLIST_SCHEMA,
+    SAVE_PLAYLIST_SCHEMAS,
 
     OBTAIN_AUTH,
 } from "../actionTypes";
@@ -24,6 +25,7 @@ import {
     modifyPlaylistSchema,
     addPlaylistSchema,
     removePlaylistSchema,
+    savePlaylistSchemas,
     obtainAuth,
 } from "../actions";
 
@@ -85,6 +87,10 @@ test("removePlaylistSchema returns object with type REMOVE_PLAYLIST_SCHEMA", () 
         expect(action.type).toEqual(REMOVE_PLAYLIST_SCHEMA);
         expect(action.index).toEqual(i);
     }
+});
+
+test("savePlaylistSchemas returns object with type SAVE_PLAYLIST_SCHEMAS", () => {
+    expect(savePlaylistSchemas().type).toEqual(SAVE_PLAYLIST_SCHEMAS);
 });
 
 test("obtainAuth returns object with type OBTAIN_AUTH", () => {

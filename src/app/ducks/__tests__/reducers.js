@@ -10,6 +10,7 @@ import {
     MODIFY_PLAYLIST_SCHEMA,
     ADD_PLAYLIST_SCHEMA,
     REMOVE_PLAYLIST_SCHEMA,
+    SAVE_PLAYLIST_SCHEMAS,
 
     OBTAIN_AUTH,
 } from "../actionTypes";
@@ -256,6 +257,7 @@ describe("playlist schema reducers", () => {
                 expect(newState.playlistSchemas[g]).toEqual(expectedOutcomes[i][g]);
             }
             expect(newState.playlistSchemas.length).toEqual(expectedOutcomes[i].length);
+            expect(newState.playlistSchemasDirty).toBe(true);
         }
     });
 
@@ -293,6 +295,7 @@ describe("playlist schema reducers", () => {
                 expect(newState.playlistSchemas[g]).toEqual(expectedOutcomes[i][g]);
             }
             expect(newState.playlistSchemas.length).toEqual(expectedOutcomes[i].length);
+            expect(newState.playlistSchemasDirty).toBe(true);
         }
     });
 
@@ -330,7 +333,17 @@ describe("playlist schema reducers", () => {
                 expect(newState.playlistSchemas[g]).toEqual(expectedOutcomes[i][g]);
             }
             expect(newState.playlistSchemas.length).toEqual(expectedOutcomes[i].length);
+            expect(newState.playlistSchemasDirty).toBe(true);
         }
+    });
+
+    test("saving playlist schemas sets playlistSchemasDirty to false", () => {
+        const action = {
+            type: SAVE_PLAYLIST_SCHEMAS,
+        };
+        expect(reducer({ playlistSchemasDirty: false }, action).playlistSchemasDirty).toBe(false);
+        expect(reducer({ playlistSchemasDirty: true }, action).playlistSchemasDirty).toBe(false);
+
     });
 });
 

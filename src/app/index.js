@@ -1,4 +1,4 @@
- import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import InputNumber from "rc-input-number";
 
@@ -234,11 +234,18 @@ const generatePlaylists = async (dispatch) => {
 const Generation = () => {
     const playlistGenerationProgress = useSelector((state) => state.playlistGenerationProgress);
     const buttonsBlockCounter = useSelector((state) => state.buttonsBlockCounter) || 0;
+
+    const playlistSchemas = useSelector((state) => state.playlistSchemas);
+    const songs = useSelector((state) => state.songs);
+
     const dispatch = useDispatch();
 
     const onStartGeneratePlaylists = () => {
-        dispatch(progressPlaylistGeneration(50));
-        generatePlaylists(dispatch);
+        const songsLength = songs.length;
+        dispatch(progressPlaylistGeneration(0));
+        generatePlaylists(playlistSchemas, songs, (songIndex) => {
+            dispatch(progressPlaylistGeneration(Math.floor(songIndex / songsLength * 100)));
+        });
     };
 
     if(buttonsBlockCounter <= 0 && (playlistGenerationProgress === undefined || playlistGenerationProgress < 0)) { /// Not generating
@@ -262,6 +269,13 @@ const Generation = () => {
 };
 
 const App = () => {
+
+    const playlistSchemasDirty = useSelector((state) => state.playlistSchemasDirty);
+
+    if(playlistSchemasDirty) {
+        
+    }
+
     return (
         <React.Fragment>
         <Popup/>
