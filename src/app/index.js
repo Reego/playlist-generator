@@ -1,4 +1,4 @@
- import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import InputNumber from "rc-input-number";
 
@@ -12,8 +12,21 @@ import {
     modifyPlaylistSchema,
     addPlaylistSchema,
     removePlaylistSchema,
+    savePlaylistSchemas,
     obtainAuth,
 } from "./ducks/actions";
+
+import {
+    generatePlaylists,
+    loadPlaylistSchemasFromLocalStorage,
+    savePlaylistSchemasToLocalStorage,
+} from "./playlists";
+
+import {
+    saveSongsToLocalStorage,
+    processSongsFile,
+    loadSongsFromLocalStorage,
+} from "./songs";
 
 import style from "./style.module.css";
 
@@ -51,28 +64,24 @@ const SongsInterface = () => {
     const dispatch = useDispatch();
 
     const onChangeFileField = (e) => {
-        const file = e.files[e.files.length() - 1];
+        const file = e.target.files[e.target.files.length - 1];
         if(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                // const loadedSongs = loadSongs(e.target.value);
-                // dispatch(loadSongs(loadedSongs));
-            };
-            reader.onerror = (err) => {
-                console.err(err);
-                dispatch(setPopup("Uh oh, something went wrong..."));
-            };
-            reader.readAsText(file);
-        }
-        else
-        {
-            console.log("Something went wrong...");
+            processSongsFile(file,
+                (loadedSongs) => { /// on load
+                    dispatch(loadSongs(loadedSongs));
+                    saveSongsToLocalStorage(loadedSongs);
+                },
+                (err) => { /// on error
+                    console.err(err);
+                    dispatch(setPopup("Uh oh, something went wrong..."));
+                }
+            );
         }
     };
 
     const onResetLoadedSongs = (e) => {
-        dispatch(setPopup("Songs have been reset."));
         dispatch(resetLoadedSongs());
+        dispatch(setPopup("Songs have been cleared."));
     };
 
     return (
@@ -189,6 +198,8 @@ const Playlist = ({ playlistIndex, playlistSchema, folded, setFoldedKey, onDelet
                 { buttonsBlockCounter <= 0 &&
                     <div className={ style.button } onClick={ onDeletePlaylistSchema }>Delete</div>
                 }
+                    <br/>
+                    <br/>
                 </React.Fragment>
             ) }
         </div>
@@ -211,7 +222,12 @@ const Playlists = () => {
     for(let i = 0; i < playlistSchemas.length; i++) {
         let g = i;
         playlistComponents.push(
-            <Playlist key={ playlistSchemas[i].dateKey } playlistIndex={ i } playlistSchema={ playlistSchemas[i] } folded={ foldedKey !== playlistSchemas[g].dateKey } setFoldedKey={ setFoldedKey }/>
+            <Playlist key={ playlistSchemas[i].dateKey }
+            playlistIndex={ i }
+            playlistSchema={ playlistSchemas[i] }
+            folded={ foldedKey !== playlistSchemas[g].dateKey }
+            setFoldedKey={ setFoldedKey }
+            buttonsBlockCounter={ buttonsBlockCounter }/>
         );
     }
 
@@ -227,18 +243,21 @@ const Playlists = () => {
     );
 };
 
-const generatePlaylists = async (dispatch) => {
-    setTimeout(() => { dispatch(progressPlaylistGeneration(100)); }, 500);
-};
-
 const Generation = () => {
     const playlistGenerationProgress = useSelector((state) => state.playlistGenerationProgress);
     const buttonsBlockCounter = useSelector((state) => state.buttonsBlockCounter) || 0;
+
+    const playlistSchemas = useSelector((state) => state.playlistSchemas);
+    const songs = useSelector((state) => state.songs);
+
     const dispatch = useDispatch();
 
     const onStartGeneratePlaylists = () => {
-        dispatch(progressPlaylistGeneration(50));
-        generatePlaylists(dispatch);
+        const songsLength = songs.length;
+        dispatch(progressPlaylistGeneration(0));
+        generatePlaylists(playlistSchemas, songs, (songIndex) => {
+            dispatch(progressPlaylistGeneration(Math.floor(songIndex / songsLength * 100)));
+        });
     };
 
     if(buttonsBlockCounter <= 0 && (playlistGenerationProgress === undefined || playlistGenerationProgress < 0)) { /// Not generating
@@ -261,14 +280,38 @@ const Generation = () => {
     }
 };
 
+function loadPlaylistSchemas(dispatch) {
+
+}
+
 const App = () => {
+    const playlistSchemas = useSelector((state) => state.playlistSchemas);
+    const playlistSchemasDirty = useSelector((state) => state.playlistSchemasDirty);
+    const loadedSongs = useSelector((state) => state.songs)?.length || 0;
+
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        for(const loadedPlaylistSchema of loadPlaylistSchemasFromLocalStorage()) {
+            addPlaylistSchema(loadedPlaylistSchema);
+        }
+        dispatch(loadSongs(loadSongsFromLocalStorage(dispatch)));
+    }, []);
+
+
+
+    if(playlistSchemasDirty) {
+        savePlaylistSchemasToLocalStorage(playlistSchemas);
+        dispatch(savePlaylistSchemas());
+    }
+
     return (
         <React.Fragment>
         <Popup/>
         <div className={ style.appWrap }>
             <h3 className={ style.userInfo + " " + style.infoTitle}>User: Reego</h3>
             <br/>
-            <h3 className={ style.tracksLoaded + " " + style.infoTitle}>Tracks Loaded</h3>
+            <h3 className={ style.tracksLoaded + " " + style.infoTitle}>Tracks Loaded: { loadedSongs }</h3>
             <br/>
             <SongsInterface/>
             <br/>

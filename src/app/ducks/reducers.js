@@ -10,6 +10,7 @@ import {
     MODIFY_PLAYLIST_SCHEMA,
     ADD_PLAYLIST_SCHEMA,
     REMOVE_PLAYLIST_SCHEMA,
+    SAVE_PLAYLIST_SCHEMAS,
 
     OBTAIN_AUTH,
 } from "./actionTypes";
@@ -42,6 +43,7 @@ const handlePopup = (state = {}, action) => {
 const handleSongState = (state = {}, action) => {
     let songs = (action.type === LOAD_SONGS) ? action.songs : [];
     return Object.assign({}, state, {
+        playlistSchemasDirty: true,
         songs,
     });
 };
@@ -100,7 +102,12 @@ const handleUserApp = (state = {}, action) => {
         case ADD_PLAYLIST_SCHEMA:
         case REMOVE_PLAYLIST_SCHEMA:
             return Object.assign({}, state, {
-                playlistSchemas: handlePlaylistSchemas(state.playlistSchemas, action)
+                playlistSchemas: handlePlaylistSchemas(state.playlistSchemas, action),
+                playlistSchemasDirty: true,
+            });
+        case SAVE_PLAYLIST_SCHEMAS:
+            return Object.assign({}, state, {
+                playlistSchemasDirty: false,
             });
         case PROGRESS_PLAYLIST_GENERATION:
             return handlePlaylistGeneration(state, action);

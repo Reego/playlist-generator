@@ -10,8 +10,10 @@ import {
     MODIFY_PLAYLIST_SCHEMA,
     ADD_PLAYLIST_SCHEMA,
     REMOVE_PLAYLIST_SCHEMA,
+    SAVE_PLAYLIST_SCHEMAS,
 
     OBTAIN_AUTH,
+    LOAD_INITIAL_STATE,
 } from "./actionTypes";
 
 
@@ -65,6 +67,9 @@ const removePlaylistSchema = (index) => ({
     index,
 });
 
+const savePlaylistSchemas = () => ({
+    type: SAVE_PLAYLIST_SCHEMAS,
+});
 
 /// API level
 
@@ -83,5 +88,6 @@ export {
     modifyPlaylistSchema,
     addPlaylistSchema,
     removePlaylistSchema,
+    savePlaylistSchemas,
     obtainAuth,
 };

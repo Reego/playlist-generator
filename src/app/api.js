@@ -1,8 +1,16 @@
 const http = require("http");
 
-const apiURL;
+const apiURL = "";
 const requestOptions = {
-    method:
+    method: "GET",
+};
+
+async function apiUpdatePlaylist(playlistSchema, songs) {
+
+}
+
+export {
+    apiUpdatePlaylist,
 };
 
 /*
@@ -18,36 +26,36 @@ async function getSongData(song) {
  * the songCallback is called for each retrieved song from the API
  */
 
-async function processUserSongs(songCallback) {
-    let totalSongCount = 0;
-    let processSongs = 0;
-    while(true) {
-        let songCount = ///
-        totalSongCount += songCount;
-        const songs = [];
-        for(let i = 0; i < songCount; i++) {
-            songCallback(songs[i]).then(() => { totalSongCount = })
-        }
-        if(songCount !== 0) {
-            callback();
-        }
-    }
-    return async.until(() => )
-}
+// async function processUserSongs(songCallback) {
+//     let totalSongCount = 0;
+//     let processSongs = 0;
+//     while(true) {
+//         let songCount = ///
+//         totalSongCount += songCount;
+//         const songs = [];
+//         for(let i = 0; i < songCount; i++) {
+//             songCallback(songs[i]).then(() => { totalSongCount = 0 });
+//         }
+//         if(songCount !== 0) {
+//             callback();
+//         }
+//     }
+//     return async.until(() => )
+// }
 
 /*
  * Returns a Promise that retrieves all of the user's playlists
  */
 
 async function getUserPlaylists() {
-    return http.request(apiURL).then(() => JSON.parse(data));
+    return http.request(apiURL).then(() => JSON.parse(""));
 }
 
 /*
  * Returns the final loadaed playlists, each with a unique api_id
  */
 async function loadPlaylists() {
-    const playlists = require("../playlistConfig.json");
+    const playlists = {};
 
     const userPlaylists = await getUserPlaylists();
     for(let i = 0; i < playlists.length; i++) {
