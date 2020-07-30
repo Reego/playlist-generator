@@ -2,8 +2,19 @@ import {
     loadSongs,
 } from "./ducks/actions";
 
-function loadSongsFromFile(fileContent) {
-    const lines = fileContent.split("\n");
+function saveSongsToLocalStorage(songs) {
+    localStorage.setItem("songs", songs);
+}
+
+function processSongsFile(file, onLoad, onError) {
+    const reader = new FileReader(file);
+    reader.onload = (e) => onLoad(loadSongsFromText(e.target.result));
+    reader.onerror = onError;
+    reader.readAsText(file);
+}
+
+function loadSongsFromText(text, onLoad, onError) {
+    const lines = text.split("\n");
     const songs = [];
 
     for(let line of lines) {
@@ -13,12 +24,12 @@ function loadSongsFromFile(fileContent) {
     return songs;
 }
 
-function loadSongsFromLocalStorage(dispatch) {
-    const localSongs = localStorage.getItem("songs");
-    dispatch(loadSongs(localSongs));
+function loadSongsFromLocalStorage() {
+    return localStorage.getItem("songs");
 }
 
 export {
-    loadSongsFromFile,
+    processSongsFile,
     loadSongsFromLocalStorage,
+    saveSongsToLocalStorage,
 };

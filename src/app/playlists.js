@@ -1,4 +1,5 @@
 import {
+    apiUpdatePlaylist,
     getSongData,
 } from "./api";
 
@@ -18,12 +19,12 @@ function isValidSong(playlist, songData) {
         return false;
     }
 
-    for(let i = 0; i < constraint.length; i++) {
-        const songDataExtraValue = songData[constraint[i]];
-        const playlistConstraintBounds = playlist[constraint[i]];
+    for(let i = 0; i < playlistConstraint.length; i++) {
+        const songDataExtraValue = songData[playlistConstraint[i]];
+        const playlistConstraintBounds = playlist[playlistConstraint[i]];
 
         if(playlistConstraintBounds < playlistConstraintBounds[0]
-            || playlistConstraintBounds > playlistConstraintBounds[1]]) {
+            || playlistConstraintBounds > playlistConstraintBounds[1]) {
             return false;
         }
     }
@@ -44,29 +45,25 @@ async function generatePlaylists(playlistSchemas, songIds, progressionCallback) 
             playlistSchemas.forEach((playlistSchema) => {
                 if(isValidSong(playlistSchema, songData[g])) {
                     playlists[playlistSchema.dateKey][1].push(songData[g]);
-                    if(playlists[playlistSchema.dateKey])
                 }
             });
         }
-        playlistSchemas.forEach((playlistSchema) => {
-            const playlistItem = playlist[playlistSchema.dateKey];
+        playlistSchemas.forEach(async (playlistSchema) => {
+            const playlistItem = playlists[playlistSchema.dateKey];
             if(playlistItem[1].length >= 100) {
-                await apiUpdatePlaylist(playlistItem.slice(0, 100));
+                await apiUpdatePlaylist(playlistItem.apiId, playlistItem.slice(0, 100));
             }
             playlistItem[1].splice(0, 100);
         });
         progressionCallback(i);
     }
-    if(i % 50 !== 0) {
+    if(songIds.length % 50 !== 0) {
         progressionCallback(songIds.length)
     }
 }
 
-function loadPlaylistSchemasFromLocalStorage(dispatch) {
-    const localPlaylistSchemas = localStorage.getItem("playlistSchemas");
-    for(const loadedPlaylistSchema of localPlaylistSchemas) {
-        dispatch(addPlaylistSchema(loadedPlaylistSchema));
-    }
+function loadPlaylistSchemasFromLocalStorage() {
+    return localStorage.getItem("playlistSchemas") || [];
 }
 
 function savePlaylistSchemasToLocalStorage(playlistSchemas) {
@@ -76,5 +73,5 @@ function savePlaylistSchemasToLocalStorage(playlistSchemas) {
 export {
     generatePlaylists,
     loadPlaylistSchemasFromLocalStorage,
-    savePlaylistSchemasInLocalStorage,
+    savePlaylistSchemasToLocalStorage,
 };

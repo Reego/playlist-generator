@@ -43,6 +43,7 @@ const handlePopup = (state = {}, action) => {
 const handleSongState = (state = {}, action) => {
     let songs = (action.type === LOAD_SONGS) ? action.songs : [];
     return Object.assign({}, state, {
+        playlistSchemasDirty: true,
         songs,
     });
 };
